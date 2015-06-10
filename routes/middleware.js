@@ -21,19 +21,48 @@ var _ = require('underscore');
 
 exports.initLocals = function(req, res, next) {
 	
-	var locals = res.locals;
+	var locals = res.locals,
+			language = req.params.lang,
+			defaultLang = '/' + language;
 	
+	//set the default language
+	req.setLocale(language);
+
 	locals.navLinks = [
-		{ label: 'Home',		key: 'home',		href: '/' },
-		{ label: 'Blog',		key: 'blog',		href: '/blog' },
-		{ label: 'Gallery',		key: 'gallery',		href: '/gallery' },
-		{ label: 'Contact',		key: 'contact',		href: '/contact' }
+		{ label: 'Home',		key: 'home',		href: defaultLang },
+		{ label: 'Blog',		key: 'blog',		href: defaultLang + '/blog' },
+		{ label: 'Gallery',		key: 'gallery',		href: defaultLang + '/gallery' },
+		{ label: 'Contact',		key: 'contact',		href: defaultLang +'/contact' }
 	];
 	
 	locals.user = req.user;
 	
 	next();
 	
+};
+
+/**
+    Inits the error handler functions into `res`
+*/
+exports.initErrorHandlers = function(req, res, next) {
+    
+    res.err = function(err, title, message) {
+        res.status(500).render('errors/500', {
+            err: err,
+            errorTitle: title,
+            errorMsg: message
+        });
+    };
+    
+    res.notfound = function(title, message) {
+        res.status(404).render('errors/404', {
+            errorTitle: title,
+            errorMsg: message
+        });
+    };
+    
+    next();
+    
 };
 
 
@@ -49,7 +78,7 @@ exports.flashMessages = function(req, res, next) {
 		warning: req.flash('warning'),
 		error: req.flash('error')
 	};
-	
+
 	res.locals.messages = _.any(flashMessages, function(msgs) { return msgs.length; }) ? flashMessages : false;
 	
 	next();

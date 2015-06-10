@@ -27,7 +27,8 @@ var keystone = require('keystone'),
 keystone.pre('routes', i18n.init);
 
 // Common Middleware
-keystone.pre('routes', middleware.initLocals);
+keystone.pre('routes', middleware.initErrorHandlers);
+keystone.pre('render', middleware.initLocals);
 keystone.pre('render', middleware.flashMessages);
 
 // Import Route Controllers
@@ -39,11 +40,16 @@ var routes = {
 exports = module.exports = function(app) {
 	
 	// Views
-	app.get('/', routes.views.index);
-	app.get('/blog/:category?', routes.views.blog);
-	app.get('/blog/post/:post', routes.views.post);
-	app.get('/gallery', routes.views.gallery);
-	app.all('/contact', routes.views.contact);
+	app.get('/', function(req, res, cb){
+		var routeLang = '/'+req.getLocale();
+		res.redirect(routeLang);
+		cb();
+	});
+	app.get('/:lang', routes.views.index);
+	app.get('/:lang/blog/:category?', routes.views.blog);
+	app.get('/:lang/blog/post/:post', routes.views.post);
+	app.get('/:lang/gallery', routes.views.gallery);
+	app.all('/:lang/contact', routes.views.contact);
 	
 	// NOTE: To protect a route so that only admins can see it, use the requireUser middleware:
 	// app.get('/protected', middleware.requireUser, routes.views.protected);

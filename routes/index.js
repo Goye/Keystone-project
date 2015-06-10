@@ -40,10 +40,9 @@ var routes = {
 exports = module.exports = function(app) {
 	
 	// Views
-	app.get('/', function(req, res, cb){
+	app.get('/', function(req, res){
 		var routeLang = '/'+req.getLocale();
 		res.redirect(routeLang);
-		cb();
 	});
 	app.get('/:lang', routes.views.index);
 	app.get('/:lang/blog/:category?', routes.views.blog);
